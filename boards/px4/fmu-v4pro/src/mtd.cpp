@@ -46,7 +46,7 @@ static const px4_mtd_entry_t fmum_fram = {
 		{
 			.type = MTD_PARAMETERS,
 			.path = "/fs/mtd_params",
-			.nblocks = 32
+			.nblocks = (16384 / (1 << CONFIG_RAMTRON_EMULATE_PAGE_SHIFT))
 		},
 	},
 };
