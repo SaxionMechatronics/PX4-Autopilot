@@ -166,6 +166,7 @@ set(models
 	px4vision
 	r1_rover
 	rover
+	sarax
 	shell
 	solo
 	standard_vtol

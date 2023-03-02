@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# @name Sarax
+#
+# @type Octorotor Coaxial
+# @class Copter
+#
+# @maintainer Ayham Alharbat
+#
+# @output MAIN1 motor 1
+# @output MAIN2 motor 2
+# @output MAIN3 motor 3
+# @output MAIN4 motor 4
+# @output MAIN5 motor 5
+# @output MAIN6 motor 6
+# @output MAIN7 motor 7
+# @output MAIN8 motor 8
+
+. ${R}etc/init.d/rc.mc_defaults
+
+param set-default MPC_THR_HOVER 0.2
+param set-default MAV_TYPE 14
+
+set MIXER octo_cox
+set PWM_OUT 12345678
