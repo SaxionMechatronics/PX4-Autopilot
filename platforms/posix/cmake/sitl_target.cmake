@@ -167,6 +167,7 @@ set(models
 	r1_rover
 	rover
 	sarax
+	sarax_plus
 	shell
 	solo
 	standard_vtol

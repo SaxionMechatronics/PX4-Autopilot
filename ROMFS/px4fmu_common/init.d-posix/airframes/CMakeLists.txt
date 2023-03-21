@@ -80,4 +80,6 @@ px4_add_romfs_files(
 	6012_typhoon_h480_ctrlalloc
 	6012_typhoon_h480_ctrlalloc.post
 	12011_sarax
+	12012_sarax_plus
 )
+
