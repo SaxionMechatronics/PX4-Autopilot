@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
     <!-- MAVROS posix SITL environment launch script -->
-    <!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
+    <!-- launches MAVROS, PX4 SITL with Sarax+Manipulator, Gazebo environment, and spawns vehicle -->
+    <!-- It will also load the required parameters for the ROS_Controllers control interface -->
     <!-- vehicle pose -->
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
@@ -12,7 +13,7 @@
     <!-- vehicle model and world -->
     <arg name="est" default="ekf2"/>
     <arg name="vehicle" default="sarax_plus"/>
-    <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/empty.world"/>
+    <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/interaction_wall.world"/>
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg vehicle)/$(arg vehicle).sdf"/>
 
     <!-- gazebo configs -->
@@ -51,4 +52,25 @@
         <arg name="fcu_url" value="$(arg fcu_url)"/>
         <arg name="respawn_mavros" value="$(arg respawn_mavros)"/>
     </include>
+
+    <!-- Load the URDF into the ROS Parameter Server -->
+    <param name="sarax_mani_robot_description"
+    command="cat $(find mavlink_sitl_gazebo)/models/sarax_plus/sarax_plus.urdf" />
+
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find mavlink_sitl_gazebo)/config/sarax_mani_ros_controllers.yaml" command="load"/>
+
+    <!-- load the controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/sarax_mani" args="sarax_mani_joint_publisher
+              joint1_effort_controller
+              joint2_effort_controller"/>
+
+    <!-- convert joint states to TF transforms for rviz, etc -->
+    <node name="sarax_mani_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+        <remap from="robot_description" to="sarax_mani_robot_description" />
+        <remap from="/joint_states" to="/sarax_mani/joint_states" />
+    </node>
+
 </launch>
