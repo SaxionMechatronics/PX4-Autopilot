@@ -92,6 +92,8 @@ px4_add_romfs_files(
 	10041_sihsim_airplane
 	10042_sihsim_xvert
 
+	12002_gz_sarax
+
 	17001_flightgear_tf-g1
 	17002_flightgear_tf-g2
 )
