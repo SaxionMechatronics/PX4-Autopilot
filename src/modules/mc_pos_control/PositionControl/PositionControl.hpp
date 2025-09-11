@@ -44,12 +44,16 @@
 #include <uORB/topics/trajectory_setpoint.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
+#include <uORB/topics/manual_control_setpoint.h>
+#include <uORB/Subscription.hpp>
 
 struct PositionControlStates {
 	matrix::Vector3f position;
 	matrix::Vector3f velocity;
 	matrix::Vector3f acceleration;
 	float yaw;
+	float roll;
+	float pitch;
 };
 
 /**
@@ -183,7 +187,7 @@ public:
 	 * It needs to be executed by the attitude controller to achieve velocity and position tracking.
 	 * @param attitude_setpoint reference to struct to fill up
 	 */
-	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint) const;
+	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint, bool landed);
 
 	/**
 	 * All setpoints are set to NAN (uncontrolled). Timestampt zero.
@@ -225,6 +229,8 @@ private:
 	matrix::Vector3f _vel_dot; /**< velocity derivative (replacement for acceleration estimate) */
 	matrix::Vector3f _vel_int; /**< integral term of the velocity controller */
 	float _yaw{}; /**< current heading */
+	float _roll{};
+	float _pitch{};
 
 	// Setpoints
 	matrix::Vector3f _pos_sp; /**< desired position */
@@ -233,4 +239,13 @@ private:
 	matrix::Vector3f _thr_sp; /**< desired thrust */
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
+	float _roll_sp{}; /**< desired heading */
+	float _rollspeed_sp{}; /** desired yaw-speed */
+	float _pitch_sp{}; /**< desired heading */
+	float _pitchspeed_sp{}; /** desired yaw-speed */
+	float _roll_angle{0.f};
+	float _pitch_angle{0.f};
+	float _dt{0.f};
+
+	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
 };

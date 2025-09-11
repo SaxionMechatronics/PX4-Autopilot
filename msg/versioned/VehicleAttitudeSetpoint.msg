@@ -3,6 +3,8 @@ uint32 MESSAGE_VERSION = 0
 uint64 timestamp		# time since system start (microseconds)
 
 float32 yaw_sp_move_rate	# rad/s (commanded by user)
+float32 roll_sp_move_rate
+float32 pitch_sp_move_rate
 
 # For quaternion-based attitude control
 float32[4] q_d			# Desired quaternion for quaternion control
@@ -14,5 +16,16 @@ float32[3] thrust_body		# Normalized thrust command in body FRD frame [-1,1]
 bool reset_integral	# Reset roll/pitch/yaw integrals (navigation logic change)
 
 bool fw_control_yaw_wheel	# control heading with steering wheel (used for auto takeoff on runway)
+
+uint8 apply_flaps       	# flap config specifier
+uint8 FLAPS_OFF = 0     	# no flaps
+uint8 FLAPS_LAND = 1    	# landing config flaps
+uint8 FLAPS_TAKEOFF = 2 	# take-off config flaps
+
+uint8 apply_spoilers		# spoiler config specifier
+uint8 SPOILERS_OFF = 0     	# no spoilers
+uint8 SPOILERS_LAND = 1    	# landing config spoiler
+uint8 SPOILERS_DESCEND = 2 	# descend config spoiler
+
 
 # TOPICS vehicle_attitude_setpoint mc_virtual_attitude_setpoint fw_virtual_attitude_setpoint

@@ -17,3 +17,7 @@ float32[3] thrust	# normalized thrust vector in NED
 
 float32 yaw		# in radians NED -PI..+PI
 float32 yawspeed	# in radians/sec
+float32 rollspeed	# in radians/se
+float32 roll		# in radians NED -PI..+PI
+float32 pitchspeed	# in radians/sec
+float32 pitch		# in radians NED -PI..+PI
