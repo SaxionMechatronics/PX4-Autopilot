@@ -1,22 +1,26 @@
 #!/bin/sh
 #
-# @name 6DoF hexacopter SITL
+# @name Peach
 #
 # @type Hexarotor x
+# @class Copter
 #
 # @maintainer Kousheek Chakraborty <k.chakraborty@saxion.nl>
+#
+# @board px4_fmu-v2 exclude
+# @board bitcraze_crazyflie exclude
 #
 
 . ${R}etc/init.d/rc.mc_defaults
 
-PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
-PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
-PX4_SIM_MODEL=${PX4_SIM_MODEL:=peach}
+# MAV_TYPE_HEXAROTOR 13
+param set-default MAV_TYPE 13
 
-param set-default CA_AIRFRAME 0
 param set-default CA_ROTOR_COUNT 6
 
-param set-default MAV_TYPE 13
+param set-default BAT1_SOURCE 0
+param set-default BAT1_N_CELLS 4
+param set-default BAT1_V_DIV 18.10000038
 
 param set-default CA_ROTOR0_PX 0.0
 param set-default CA_ROTOR0_PY 0.338
@@ -66,27 +70,11 @@ param set-default CA_ROTOR5_AX -0.25
 param set-default CA_ROTOR5_AY 0.4330127
 param set-default CA_ROTOR5_AZ -0.8660254
 
-param set-default SIM_GZ_EN 1
-
-param set-default SIM_GZ_EC_FUNC1 101
-param set-default SIM_GZ_EC_FUNC2 102
-param set-default SIM_GZ_EC_FUNC3 103
-param set-default SIM_GZ_EC_FUNC4 104
-param set-default SIM_GZ_EC_FUNC5 105
-param set-default SIM_GZ_EC_FUNC6 106
-
-param set-default SIM_GZ_EC_MIN1 150
-param set-default SIM_GZ_EC_MIN2 150
-param set-default SIM_GZ_EC_MIN3 150
-param set-default SIM_GZ_EC_MIN4 150
-param set-default SIM_GZ_EC_MIN5 150
-param set-default SIM_GZ_EC_MIN6 150
-
-param set-default SIM_GZ_EC_MAX1 1000
-param set-default SIM_GZ_EC_MAX2 1000
-param set-default SIM_GZ_EC_MAX3 1000
-param set-default SIM_GZ_EC_MAX4 1000
-param set-default SIM_GZ_EC_MAX5 1000
-param set-default SIM_GZ_EC_MAX6 1000
+param set-default PWM_MAIN_FUNC1 101
+param set-default PWM_MAIN_FUNC2 102
+param set-default PWM_MAIN_FUNC3 103
+param set-default PWM_MAIN_FUNC4 104
+param set-default PWM_MAIN_FUNC5 105
+param set-default PWM_MAIN_FUNC6 106
 
 param set-default MPC_XY_VEL_ALL 5.0
