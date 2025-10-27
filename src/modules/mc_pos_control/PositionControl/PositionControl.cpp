@@ -72,6 +72,12 @@ void PositionControl::setHorizontalThrustMargin(const float margin)
 	_lim_thr_xy_margin = margin;
 }
 
+void PositionControl::setRollPitchSetpoint(const float roll, const float pitch)
+{
+	_roll_sp = roll;
+	_pitch_sp = pitch;
+}
+
 void PositionControl::updateHoverThrust(const float hover_thrust_new)
 {
 	// Given that the equation for thrust is T = a_sp * Th / g - Th
@@ -265,7 +271,7 @@ void PositionControl::getLocalPositionSetpoint(vehicle_local_position_setpoint_s
 
 void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint)
 {
-	Quatf q_sp = Eulerf(0.0, 0.0, _yaw_sp);
+	Quatf q_sp = Eulerf(_roll_sp, _pitch_sp, _yaw_sp);
 	q_sp.copyTo(attitude_setpoint.q_d);
 
 	attitude_setpoint.yaw_sp_move_rate = _yawspeed_sp;

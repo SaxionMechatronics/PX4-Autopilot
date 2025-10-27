@@ -50,8 +50,6 @@ struct PositionControlStates {
 	matrix::Vector3f velocity;
 	matrix::Vector3f acceleration;
 	float yaw;
-	float roll;
-	float pitch;
 };
 
 /**
@@ -121,6 +119,13 @@ public:
 	 * @param tilt angle in radians from level orientation
 	 */
 	void setTiltLimit(const float tilt) { _lim_tilt = tilt; }
+
+	/**
+	 * Set the roll and pitch setpoints
+	 * @param roll desired roll angle in radians
+	 * @param pitch desired pitch angle in radians
+	 */
+	void setRollPitchSetpoint(const float roll, const float pitch);
 
 	/**
 	 * Set the normalized hover thrust
@@ -233,6 +238,8 @@ private:
 	matrix::Vector3f _vel_sp; /**< desired velocity */
 	matrix::Vector3f _acc_sp; /**< desired acceleration */
 	matrix::Vector3f _thr_sp; /**< desired thrust */
+	float _roll_sp{}; /**< desired roll */
+	float _pitch_sp{}; /**< desired pitch */
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
 };

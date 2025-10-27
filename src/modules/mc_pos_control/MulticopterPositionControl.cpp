@@ -565,6 +565,29 @@ void MulticopterPositionControl::Run()
 
 			_control.setState(states);
 
+			// Read manual control setpoint and update roll/pitch setpoints based on aux1/aux2 channels
+			if (_manual_control_setpoint_sub.update(&_manual_control_setpoint)) {
+				if (_manual_control_setpoint.valid) {
+					// Map aux1 to roll setpoint and aux2 to pitch setpoint
+					// aux channels are in range [-1, 1], convert to radians
+					// Assuming a maximum tilt angle (e.g., 30 degrees = 0.524 radians)
+					const float max_tilt_angle = math::radians(15.0f);
+
+					float roll_sp = 0.0f;
+					float pitch_sp = 0.0f;
+
+					if (PX4_ISFINITE(_manual_control_setpoint.aux1)) {
+						roll_sp = _manual_control_setpoint.aux1 * max_tilt_angle;
+					}
+
+					if (PX4_ISFINITE(_manual_control_setpoint.aux2)) {
+						pitch_sp = _manual_control_setpoint.aux2 * max_tilt_angle;
+					}
+
+					_control.setRollPitchSetpoint(roll_sp, pitch_sp);
+				}
+			}
+
 			const hrt_abstime now = hrt_absolute_time();
 
 			// Run position control
