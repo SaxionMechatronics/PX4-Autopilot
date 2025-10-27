@@ -93,8 +93,6 @@ void PositionControl::setState(const PositionControlStates &states)
 	_pos = states.position;
 	_vel = states.velocity;
 	_yaw = states.yaw;
-	_roll = states.roll;
-	_pitch = states.pitch;
 	_vel_dot = states.acceleration;
 }
 
@@ -105,10 +103,6 @@ void PositionControl::setInputSetpoint(const trajectory_setpoint_s &setpoint)
 	_acc_sp = Vector3f(setpoint.acceleration);
 	_yaw_sp = setpoint.yaw;
 	_yawspeed_sp = setpoint.yawspeed;
-	_roll_sp = setpoint.roll;
-	_rollspeed_sp = setpoint.rollspeed;
-	_pitch_sp = setpoint.pitch;
-	_pitchspeed_sp = setpoint.pitchspeed;
 }
 
 bool PositionControl::update(const float dt)
@@ -121,13 +115,7 @@ bool PositionControl::update(const float dt)
 
 		_yawspeed_sp = PX4_ISFINITE(_yawspeed_sp) ? _yawspeed_sp : 0.f;
 		_yaw_sp = PX4_ISFINITE(_yaw_sp) ? _yaw_sp : _yaw; // TODO: better way to disable yaw control
-		_rollspeed_sp = PX4_ISFINITE(_rollspeed_sp) ? _rollspeed_sp : 0.f;
-		_roll_sp = PX4_ISFINITE(_roll_sp) ? _roll_sp : _roll;
-		_pitchspeed_sp = PX4_ISFINITE(_pitchspeed_sp) ? _pitchspeed_sp : 0.f;
-		_pitch_sp = PX4_ISFINITE(_pitch_sp) ? _pitch_sp : _pitch;
 	}
-
-	_dt = dt;
 
 	// There has to be a valid output acceleration and thrust setpoint otherwise something went wrong
 	return valid && _acc_sp.isAllFinite() && _thr_sp.isAllFinite();
@@ -268,10 +256,6 @@ void PositionControl::getLocalPositionSetpoint(vehicle_local_position_setpoint_s
 	local_position_setpoint.z = _pos_sp(2);
 	local_position_setpoint.yaw = _yaw_sp;
 	local_position_setpoint.yawspeed = _yawspeed_sp;
-	local_position_setpoint.roll = _roll_sp;
-	local_position_setpoint.rollspeed = _rollspeed_sp;
-	local_position_setpoint.pitch = _pitch_sp;
-	local_position_setpoint.pitchspeed = _pitchspeed_sp;
 	local_position_setpoint.vx = _vel_sp(0);
 	local_position_setpoint.vy = _vel_sp(1);
 	local_position_setpoint.vz = _vel_sp(2);
@@ -279,23 +263,12 @@ void PositionControl::getLocalPositionSetpoint(vehicle_local_position_setpoint_s
 	_thr_sp.copyTo(local_position_setpoint.thrust);
 }
 
-void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint, bool landed)
+void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint)
 {
-	ControlMath::thrustToAttitude(_thr_sp, _yaw_sp, attitude_setpoint);
-	if (landed) {
-		_roll_angle = 0.f;
-		_pitch_angle = 0.f;
-	} else {
-		_roll_angle = _roll_sp;
-		_pitch_angle = _pitch_sp;
-	}
-
-	Quatf q_sp = Eulerf(_roll_sp, _pitch_sp, _yaw_sp);
+	Quatf q_sp = Eulerf(0.0, 0.0, _yaw_sp);
 	q_sp.copyTo(attitude_setpoint.q_d);
 
 	attitude_setpoint.yaw_sp_move_rate = _yawspeed_sp;
-	attitude_setpoint.roll_sp_move_rate = _rollspeed_sp;
-	attitude_setpoint.pitch_sp_move_rate = _pitchspeed_sp;
 
 	// Rotate thrust by negative attitude
 	Dcmf att_sp_dcm{q_sp};

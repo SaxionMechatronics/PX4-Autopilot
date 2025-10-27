@@ -15,7 +15,3 @@ float32[3] jerk # in meters/second^3 (for logging only)
 
 float32 yaw # euler angle of desired attitude in radians -PI..+PI
 float32 yawspeed # angular velocity around NED frame z-axis in radians/second
-float32 roll # euler angle of desired attitude in radians -PI..+PI
-float32 rollspeed # angular velocity around NED frame x-axis in radians/second
-float32 pitch # euler angle of desired attitude in radians -PI..+PI
-float32 pitchspeed # angular velocity around NED frame y-axis in radians/second
