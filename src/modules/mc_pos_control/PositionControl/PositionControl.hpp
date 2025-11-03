@@ -44,16 +44,12 @@
 #include <uORB/topics/trajectory_setpoint.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
-#include <uORB/topics/manual_control_setpoint.h>
-#include <uORB/Subscription.hpp>
 
 struct PositionControlStates {
 	matrix::Vector3f position;
 	matrix::Vector3f velocity;
 	matrix::Vector3f acceleration;
 	float yaw;
-	float roll;
-	float pitch;
 };
 
 /**
@@ -125,6 +121,13 @@ public:
 	void setTiltLimit(const float tilt) { _lim_tilt = tilt; }
 
 	/**
+	 * Set the roll and pitch setpoints
+	 * @param roll desired roll angle in radians
+	 * @param pitch desired pitch angle in radians
+	 */
+	void setRollPitchSetpoint(const float roll, const float pitch);
+
+	/**
 	 * Set the normalized hover thrust
 	 * @param hover_thrust [HOVER_THRUST_MIN, HOVER_THRUST_MAX] with which the vehicle hovers not accelerating down or up with level orientation
 	 */
@@ -187,7 +190,7 @@ public:
 	 * It needs to be executed by the attitude controller to achieve velocity and position tracking.
 	 * @param attitude_setpoint reference to struct to fill up
 	 */
-	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint, bool landed);
+	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint);
 
 	/**
 	 * All setpoints are set to NAN (uncontrolled). Timestampt zero.
@@ -229,23 +232,14 @@ private:
 	matrix::Vector3f _vel_dot; /**< velocity derivative (replacement for acceleration estimate) */
 	matrix::Vector3f _vel_int; /**< integral term of the velocity controller */
 	float _yaw{}; /**< current heading */
-	float _roll{};
-	float _pitch{};
 
 	// Setpoints
 	matrix::Vector3f _pos_sp; /**< desired position */
 	matrix::Vector3f _vel_sp; /**< desired velocity */
 	matrix::Vector3f _acc_sp; /**< desired acceleration */
 	matrix::Vector3f _thr_sp; /**< desired thrust */
+	float _roll_sp{}; /**< desired roll */
+	float _pitch_sp{}; /**< desired pitch */
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
-	float _roll_sp{}; /**< desired heading */
-	float _rollspeed_sp{}; /** desired yaw-speed */
-	float _pitch_sp{}; /**< desired heading */
-	float _pitchspeed_sp{}; /** desired yaw-speed */
-	float _roll_angle{0.f};
-	float _pitch_angle{0.f};
-	float _dt{0.f};
-
-	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
 };
