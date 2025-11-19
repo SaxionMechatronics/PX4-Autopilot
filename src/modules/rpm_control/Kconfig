@@ -1,0 +1,5 @@
+menuconfig MODULES_RPM_CONTROL
+    bool "RPM Control Module"
+    default n
+    help
+        Closed-loop RPM-based motor control using BDShot telemetry.
