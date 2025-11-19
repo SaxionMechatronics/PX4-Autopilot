@@ -4,6 +4,11 @@
 #include <px4_platform_common/module_params.h>
 #include <uORB/SubscriptionInterval.hpp>
 #include <uORB/topics/parameter_update.h>
+#include <uORB/Publication.hpp>
+#include <uORB/topics/esc_status.h>
+#include <uORB/topics/actuator_motors.h>
+#include <uORB/topics/actuator_outputs.h>
+#include <uORB/PublicationMulti.hpp>
 
 using namespace time_literals;
 
@@ -51,6 +56,13 @@ private:
 	)
 
 	// Subscriptions
+	uORB::Subscription _sub_actuator_motors{ORB_ID(actuator_motors)};
+	uORB::Subscription _sub_esc_status{ORB_ID(esc_status)};
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
+
+	// Publications
+	uORB::Publication<actuator_outputs_s> _pub_actuator_outputs{ORB_ID(actuator_outputs)};
+
+
 
 };

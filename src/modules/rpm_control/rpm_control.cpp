@@ -104,43 +104,37 @@ RPMControl::RPMControl(int example_param, bool example_flag)
 
 void RPMControl::run()
 {
-	// Example: run the loop synchronized to the sensor_combined topic publication
-	int sensor_combined_sub = orb_subscribe(ORB_ID(sensor_combined));
-
-	px4_pollfd_struct_t fds[1];
-	fds[0].fd = sensor_combined_sub;
-	fds[0].events = POLLIN;
-
-	// initialize parameters
-	parameters_update(true);
+    	PX4_INFO("Started");
 
 	while (!should_exit()) {
 
-		// wait for up to 1000ms for data
-		int pret = px4_poll(fds, (sizeof(fds) / sizeof(fds[0])), 1000);
-
-		if (pret == 0) {
-			// Timeout: let the loop run anyway, don't do `continue` here
-
-		} else if (pret < 0) {
-			// this is undesirable but not much we can do
-			PX4_ERR("poll error %d, %d", pret, errno);
-			px4_usleep(50000);
-			continue;
-
-		} else if (fds[0].revents & POLLIN) {
-
-			struct sensor_combined_s sensor_combined;
-			orb_copy(ORB_ID(sensor_combined), sensor_combined_sub, &sensor_combined);
-			// TODO: do something with the data...
-
+		// Read thrust setpoint
+		actuator_motors_s motors{};
+		if (_sub_actuator_motors.update(&motors)) {
 		}
 
-		parameters_update();
-	}
+		// Read ESC rpm feedback
+		esc_status_s esc{};
+		if (_sub_esc_status.update(&esc)) {
+		}
 
-	orb_unsubscribe(sensor_combined_sub);
+		actuator_outputs_s actuator_outputs{};
+
+		actuator_outputs.timestamp = hrt_absolute_time();
+		actuator_outputs.noutputs = actuator_outputs_s::NUM_ACTUATOR_OUTPUTS;
+
+		for (int i = 0; i < (int)actuator_outputs.noutputs; i++) {
+		actuator_outputs.output[i] = 0.f;
+		}
+
+		// Publish outputs
+		_pub_actuator_outputs.publish(actuator_outputs);
+
+		px4_usleep(10000); // 100 Hz loop
+	}
+	PX4_INFO("Exiting");
 }
+
 
 void RPMControl::parameters_update(bool force)
 {
