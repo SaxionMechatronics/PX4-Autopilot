@@ -74,3 +74,12 @@ parameters:
                     Typical motors for 5 inch props have 14 poles.
             type: int32
             default: 14
+        DSHOT_RPMCNT_EN:
+            description:
+                short: Enable a closed loop RPM controller using bidirectional DShot
+                long: |
+                    This parameter enables a closed loop RPM controller which uses the RPM feedback.
+                    Note that this requires ESCs that support bidirectional DSHot, e.g. BlHeli32.
+            type: boolean
+            default: 0
+            reboot_required: true

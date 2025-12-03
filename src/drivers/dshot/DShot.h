@@ -128,7 +128,11 @@ private:
 
 	void publish_esc_status(void);
 
+	void publish_rpm_controller_status(void);
+
 	int handle_new_bdshot_erpm(void);
+
+	int handle_new_rpm_control_info(void);
 
 	void Run() override;
 
@@ -157,6 +161,7 @@ private:
 	bool _outputs_initialized{false};
 	bool _outputs_on{false};
 	bool _bidirectional_dshot_enabled{false};
+	bool _rpm_control_enabled{false};
 
 	static constexpr unsigned _num_outputs{DIRECT_PWM_OUTPUT_CHANNELS};
 	uint32_t _output_mask{0};
@@ -180,7 +185,6 @@ private:
 	// -------------------------------------//
 
 	static constexpr int MAX_MOTORS{esc_status_s::CONNECTED_ESC_MAX};
-	bool _rpm_ctrl_enabled{false};
 	float _erpm_meas[MAX_ACTUATORS]{};
 	float _erpm_sp[MAX_ACTUATORS]{};
 	float _erpm_int[MAX_ACTUATORS]{};
@@ -199,6 +203,7 @@ private:
 		(ParamInt<px4::params::DSHOT_3D_DEAD_H>) _param_dshot_3d_dead_h,
 		(ParamInt<px4::params::DSHOT_3D_DEAD_L>) _param_dshot_3d_dead_l,
 		(ParamInt<px4::params::MOT_POLE_COUNT>) _param_mot_pole_count,
-		(ParamBool<px4::params::DSHOT_BIDIR_EN>) _param_bidirectional_enable
+		(ParamBool<px4::params::DSHOT_BIDIR_EN>) _param_bidirectional_enable,
+		(ParamBool<px4::params::DSHOT_RPMCNT_EN>) _param_rpm_ctrl_enabled
 	)
 };

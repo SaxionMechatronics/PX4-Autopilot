@@ -51,9 +51,8 @@ DShot::DShot() :
 	// Avoid using the PWM failsafe params
 	_mixing_output.setAllFailsafeValues(UINT16_MAX);
 
-	_rpm_ctrl_enabled = true;
-	if(_rpm_ctrl_enabled){
-		PX4_INFO(">>> CUSTOM DSHOT BUILD, RPM CTRL ENABLED <<<");
+	if(_rpm_control_enabled){
+		PX4_INFO(">>> CUSTOM DSHOT BUILD, RPM CONTROL ENABLED <<<");
 	}
 }
 
@@ -151,6 +150,7 @@ void DShot::enable_dshot_outputs(const bool enabled)
 		}
 
 		_bidirectional_dshot_enabled = _param_bidirectional_enable.get();
+		_rpm_control_enabled = _param_rpm_ctrl_enabled.get();
 
 		int ret = up_dshot_init(_output_mask, dshot_frequency, _bidirectional_dshot_enabled);
 
@@ -261,6 +261,14 @@ int DShot::handle_new_telemetry_data(const int telemetry_index, const DShotTelem
 	return ret;
 }
 
+void DShot::publish_rpm_controller_status(void){
+
+}
+
+int DShot::handle_new_rpm_control_info(){
+	return 0;
+}
+
 void DShot::publish_esc_status(void)
 {
 	esc_status_s &esc_status = esc_status_pub.get();
@@ -330,7 +338,7 @@ int DShot::handle_new_bdshot_erpm(void)
 				esc_status.esc[telemetry_index].esc_rpm = (erpm * 100) / (_param_mot_pole_count.get() / 2);
 				esc_status.esc[telemetry_index].actuator_function = _actuator_functions[telemetry_index];
 
-				if(_rpm_ctrl_enabled && telemetry_index < MAX_ACTUATORS){
+				if(_rpm_control_enabled && telemetry_index < MAX_ACTUATORS){
 					_erpm_meas[telemetry_index] = static_cast<float>((erpm * 100) / (_param_mot_pole_count.get() / 2));
 				}
 			}
@@ -396,7 +404,7 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 
 	int telemetry_index = 0;
 
-	if(_rpm_ctrl_enabled){
+	if(_rpm_control_enabled){
 
 		hrt_abstime now = hrt_absolute_time();
 		float dt = 0.002f;
@@ -578,6 +586,12 @@ void DShot::Run()
 
 		if (need_to_publish) {
 			publish_esc_status();
+		}
+	}
+	if (_rpm_control_enabled){
+		const int need_to_publish = handle_new_rpm_control_info();
+		if(need_to_publish){
+			publish_rpm_controller_status();
 		}
 	}
 
