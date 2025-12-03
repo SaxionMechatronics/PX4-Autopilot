@@ -413,8 +413,6 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 		}
 		_rpm_last_update = now;
 
-		const uint16_t erpm_max = 12500;
-
 		for(int i = 0; i < (int)num_outputs; i++){
 			uint16_t output = outputs[i];
 
@@ -434,11 +432,11 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 
 				float sp_norm = (float(output) - chan_min) / (chan_max - chan_min);
 				sp_norm = math::constrain(sp_norm, 0.f, 1.f);
-				_erpm_sp[i] = sp_norm *erpm_max;
+				_erpm_sp[i] = sp_norm * _erpm_max;
 
 				float base_cmd = sp_norm;
 				const float meas = _erpm_meas[i];
-				const float error = (_erpm_sp[i] - meas) / erpm_max;
+				const float error = (_erpm_sp[i] - meas) / _erpm_max;
 
 				_erpm_int[i] += error * dt;
 				_erpm_int[i] = math::constrain(_erpm_int[i], -_erpm_int_limit, _erpm_int_limit);
@@ -712,6 +710,10 @@ void DShot::update_params()
 	_parameter_update_sub.copy(&pupdate);
 
 	updateParams();
+
+	if(_rpm_control_enabled){
+		_erpm_max = _param_max_throttle_rpm.get();
+	}
 
 	// we use a minimum value of 1, since 0 is for disarmed
 	_mixing_output.setAllMinValues(math::constrain(static_cast<int>((_param_dshot_min.get() *

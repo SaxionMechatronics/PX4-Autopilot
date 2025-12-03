@@ -83,3 +83,11 @@ parameters:
             type: boolean
             default: 0
             reboot_required: true
+        MAX_THROT_RPM:
+            description:
+                short: The RPM value at MAX throttle of the motor
+                long: |
+                    Specify the number maximum RPM of the motors.
+                    It is required for the closed loop RPM controller.
+            type: int32
+            default: 12500

@@ -189,6 +189,7 @@ private:
 	float _erpm_sp[MAX_ACTUATORS]{};
 	float _erpm_int[MAX_ACTUATORS]{};
 	uint64_t _rpm_last_update{0};
+	uint16_t _erpm_max{};
 
 	float _rpm_kp{0.5f};
 	float _rpm_ki{1.f};
@@ -204,6 +205,7 @@ private:
 		(ParamInt<px4::params::DSHOT_3D_DEAD_L>) _param_dshot_3d_dead_l,
 		(ParamInt<px4::params::MOT_POLE_COUNT>) _param_mot_pole_count,
 		(ParamBool<px4::params::DSHOT_BIDIR_EN>) _param_bidirectional_enable,
-		(ParamBool<px4::params::DSHOT_RPMCNT_EN>) _param_rpm_ctrl_enabled
+		(ParamBool<px4::params::DSHOT_RPMCNT_EN>) _param_rpm_ctrl_enabled,
+		(ParamInt<px4::params::MAX_THROT_RPM>) _param_max_throttle_rpm
 	)
 };
