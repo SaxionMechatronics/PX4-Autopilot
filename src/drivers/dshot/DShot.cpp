@@ -34,7 +34,7 @@
 #include "DShot.h"
 
 #include <px4_arch/io_timer.h>
-
+#include <px4_platform_common/log.h>
 #include <px4_platform_common/sem.hpp>
 
 char DShot::_telemetry_device[] {};
@@ -50,6 +50,11 @@ DShot::DShot() :
 
 	// Avoid using the PWM failsafe params
 	_mixing_output.setAllFailsafeValues(UINT16_MAX);
+
+	_rpm_ctrl_enabled = true;
+	if(_rpm_ctrl_enabled){
+		PX4_INFO(">>> CUSTOM DSHOT BUILD, RPM CTRL ENABLED <<<");
+	}
 }
 
 DShot::~DShot()
@@ -324,6 +329,10 @@ int DShot::handle_new_bdshot_erpm(void)
 				esc_status.esc[telemetry_index].timestamp = hrt_absolute_time();
 				esc_status.esc[telemetry_index].esc_rpm = (erpm * 100) / (_param_mot_pole_count.get() / 2);
 				esc_status.esc[telemetry_index].actuator_function = _actuator_functions[telemetry_index];
+
+				if(_rpm_ctrl_enabled && telemetry_index < MAX_ACTUATORS){
+					_erpm_meas[telemetry_index] = static_cast<float>((erpm * 100) / (_param_mot_pole_count.get() / 2));
+				}
 			}
 
 			++telemetry_index;
@@ -387,30 +396,98 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 
 	int telemetry_index = 0;
 
-	for (int i = 0; i < (int)num_outputs; i++) {
+	if(_rpm_ctrl_enabled){
 
-		uint16_t output = outputs[i];
+		hrt_abstime now = hrt_absolute_time();
+		float dt = 0.002f;
+		if(_rpm_last_update > 0){
+			dt = (now - _rpm_last_update) * 1e-6f;
+		}
+		_rpm_last_update = now;
 
-		if (output == DSHOT_DISARM_VALUE) {
+		const uint16_t erpm_max = 12500;
 
-			if (_current_command.valid() && (_current_command.motor_mask & (1 << i))) {
-				up_dshot_motor_command(i, _current_command.command, true);
+		for(int i = 0; i < (int)num_outputs; i++){
+			uint16_t output = outputs[i];
+
+			if(output == DSHOT_DISARM_VALUE){
+				_erpm_sp[i] = 0.f;
+				_erpm_int[i] = 0.f;
+
+				if (_current_command.valid() && (_current_command.motor_mask & (1 << i))) {
+					up_dshot_motor_command(i, _current_command.command, true);
+
+				} else {
+					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
+				}
+			} else {
+				const float chan_min = (float)_mixing_output.minValue(i);
+				const float chan_max = (float)_mixing_output.maxValue(i);
+
+				float sp_norm = (float(output) - chan_min) / (chan_max - chan_min);
+				sp_norm = math::constrain(sp_norm, 0.f, 1.f);
+				_erpm_sp[i] = sp_norm *erpm_max;
+
+				float base_cmd = sp_norm;
+				const float meas = _erpm_meas[i];
+				const float error = (_erpm_sp[i] - meas) / erpm_max;
+
+				_erpm_int[i] += error * dt;
+				_erpm_int[i] = math::constrain(_erpm_int[i], -_erpm_int_limit, _erpm_int_limit);
+
+				float cmd_norm = base_cmd + _rpm_kp * error + _rpm_ki * _erpm_int[i];
+				cmd_norm = math::constrain(cmd_norm, _cmd_min, _cmd_max);
+
+				uint16_t dshot_cmd = (uint16_t)roundf(cmd_norm * DSHOT_MAX_THROTTLE);
+
+				if (i == 0) {
+					debug_array_s dbg{};
+					dbg.timestamp = hrt_absolute_time();
+					dbg.id = 0;
+
+					strncpy(dbg.name, "setpoint,measured,error,cmd", sizeof(dbg.name));
+					dbg.name[sizeof(dbg.name) - 1] = '\0';
+
+					dbg.data[0] = _erpm_sp[i];
+					dbg.data[1] = _erpm_meas[0];
+					dbg.data[2] = error;
+					dbg.data[3] = dshot_cmd;
+					_debug_pub.publish(dbg);
+				}
+
+
+				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
+			}
+
+			telemetry_index += _mixing_output.isFunctionSet(i);
+		}
+	} else {
+
+		for (int i = 0; i < (int)num_outputs; i++) {
+
+			uint16_t output = outputs[i];
+
+			if (output == DSHOT_DISARM_VALUE) {
+
+				if (_current_command.valid() && (_current_command.motor_mask & (1 << i))) {
+					up_dshot_motor_command(i, _current_command.command, true);
+
+				} else {
+					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
+				}
 
 			} else {
-				up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
+
+				if (_param_dshot_3d_enable.get() || (_reversible_outputs & (1u << i))) {
+					output = convert_output_to_3d_scaling(output);
+				}
+
+				up_dshot_motor_data_set(i, math::min(output, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)),
+							telemetry_index == requested_telemetry_index);
 			}
 
-		} else {
-
-			if (_param_dshot_3d_enable.get() || (_reversible_outputs & (1u << i))) {
-				output = convert_output_to_3d_scaling(output);
-			}
-
-			up_dshot_motor_data_set(i, math::min(output, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)),
-						telemetry_index == requested_telemetry_index);
+			telemetry_index += _mixing_output.isFunctionSet(i);
 		}
-
-		telemetry_index += _mixing_output.isFunctionSet(i);
 	}
 
 	// Decrement the command counter

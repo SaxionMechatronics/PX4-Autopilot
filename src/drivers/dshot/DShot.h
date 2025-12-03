@@ -39,6 +39,7 @@
 #include <uORB/topics/esc_status.h>
 #include <uORB/topics/vehicle_command.h>
 #include <uORB/topics/vehicle_command_ack.h>
+#include <uORB/topics/debug_array.h>
 
 #include "DShotTelemetry.h"
 
@@ -171,7 +172,26 @@ private:
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 	uORB::Subscription _vehicle_command_sub{ORB_ID(vehicle_command)};
 	uORB::Publication<vehicle_command_ack_s> _command_ack_pub{ORB_ID(vehicle_command_ack)};
+	uORB::Publication<debug_array_s> _debug_pub{ORB_ID(debug_array)};
 	uint16_t _esc_status_counter{0};
+
+	// -------------------------------------//
+	// ---------- Experimental -------------//
+	// -------------------------------------//
+
+	static constexpr int MAX_MOTORS{esc_status_s::CONNECTED_ESC_MAX};
+	bool _rpm_ctrl_enabled{false};
+	float _erpm_meas[MAX_ACTUATORS]{};
+	float _erpm_sp[MAX_ACTUATORS]{};
+	float _erpm_int[MAX_ACTUATORS]{};
+	uint64_t _rpm_last_update{0};
+
+	float _rpm_kp{0.5f};
+	float _rpm_ki{1.f};
+
+	float _erpm_int_limit{0.5f};
+	float _cmd_min{0.0f};
+	float _cmd_max{1.0f};
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::DSHOT_MIN>)    _param_dshot_min,
