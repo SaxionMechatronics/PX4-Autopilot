@@ -262,12 +262,40 @@ int DShot::handle_new_telemetry_data(const int telemetry_index, const DShotTelem
 }
 
 void DShot::publish_rpm_controller_status(void){
+	if (!rpm_controller_info_pub.advertised()) {
+	rpm_controller_info_pub.advertise();
 
+	} else {
+		rpm_controller_info_pub.update();
+	}
 }
 
-int DShot::handle_new_rpm_control_info(){
-	return 0;
+int DShot::handle_new_rpm_control_info()
+{
+    if (!_rpm_control_enabled || _num_motors == 0) {
+        return 0;
+    }
+
+    rpm_controller_info_s &msg = rpm_controller_info_pub.get();
+
+    msg.timestamp = hrt_absolute_time();
+    msg.num_motors = _num_motors;
+
+    for (unsigned i = 0; i < _num_outputs; i++) {
+        const float sp_erpm = _erpm_sp[i];
+        const float meas_erpm = _erpm_meas[i];
+
+        msg.rpm_setpoint[i]   = sp_erpm;
+        msg.rpm_measured[i]   = meas_erpm;
+        msg.rpm_error[i]      = sp_erpm - meas_erpm;
+
+        msg.cmd_norm[i]        = _last_cmd_norm[i];
+        msg.dshot_command[i]   = _last_dshot_cmd[i];
+    }
+
+    return 1;
 }
+
 
 void DShot::publish_esc_status(void)
 {
@@ -446,23 +474,10 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 
 				uint16_t dshot_cmd = (uint16_t)roundf(cmd_norm * DSHOT_MAX_THROTTLE);
 
-				if (i == 0) {
-					debug_array_s dbg{};
-					dbg.timestamp = hrt_absolute_time();
-					dbg.id = 0;
+				_last_cmd_norm[i]  = cmd_norm;
+				_last_dshot_cmd[i] = dshot_cmd;
 
-					strncpy(dbg.name, "setpoint,measured,error,cmd", sizeof(dbg.name));
-					dbg.name[sizeof(dbg.name) - 1] = '\0';
-
-					dbg.data[0] = _erpm_sp[i];
-					dbg.data[1] = _erpm_meas[0];
-					dbg.data[2] = error;
-					dbg.data[3] = dshot_cmd;
-					_debug_pub.publish(dbg);
-				}
-
-
-				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
+    				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
 			}
 
 			telemetry_index += _mixing_output.isFunctionSet(i);

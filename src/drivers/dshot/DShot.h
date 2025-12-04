@@ -39,7 +39,7 @@
 #include <uORB/topics/esc_status.h>
 #include <uORB/topics/vehicle_command.h>
 #include <uORB/topics/vehicle_command_ack.h>
-#include <uORB/topics/debug_array.h>
+#include <uORB/topics/rpm_controller_info.h>
 
 #include "DShotTelemetry.h"
 
@@ -150,6 +150,7 @@ private:
 	DShotTelemetry *_telemetry{nullptr};
 
 	uORB::PublicationMultiData<esc_status_s> esc_status_pub{ORB_ID(esc_status)};
+	uORB::PublicationMultiData<rpm_controller_info_s> rpm_controller_info_pub{ORB_ID(rpm_controller_info)};
 
 	static char _telemetry_device[20];
 	static bool _telemetry_swap_rxtx;
@@ -177,7 +178,6 @@ private:
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 	uORB::Subscription _vehicle_command_sub{ORB_ID(vehicle_command)};
 	uORB::Publication<vehicle_command_ack_s> _command_ack_pub{ORB_ID(vehicle_command_ack)};
-	uORB::Publication<debug_array_s> _debug_pub{ORB_ID(debug_array)};
 	uint16_t _esc_status_counter{0};
 
 	// -------------------------------------//
@@ -189,6 +189,8 @@ private:
 	float _erpm_sp[MAX_ACTUATORS]{};
 	float _erpm_int[MAX_ACTUATORS]{};
 	uint64_t _rpm_last_update{0};
+	uint16_t _last_dshot_cmd[MAX_ACTUATORS]{};
+	float _last_cmd_norm[MAX_ACTUATORS]{};
 	uint16_t _erpm_max{};
 	float _rpm_kp{};
 	float _rpm_ki{};
