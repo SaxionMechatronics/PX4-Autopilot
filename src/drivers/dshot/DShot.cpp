@@ -272,7 +272,7 @@ void DShot::publish_rpm_controller_status(void){
 
 int DShot::handle_new_rpm_control_info()
 {
-    if (!_rpm_control_enabled || _num_motors == 0) {
+    if (_num_motors == 0) {
         return 0;
     }
 
@@ -496,12 +496,20 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 				} else {
 					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
 				}
+				_erpm_sp[i]       = 0.f;
 
 			} else {
 
 				if (_param_dshot_3d_enable.get() || (_reversible_outputs & (1u << i))) {
 					output = convert_output_to_3d_scaling(output);
 				}
+
+				// ONLY FOR LOGGING
+				const float chan_min = (float)_mixing_output.minValue(i);
+				const float chan_max = (float)_mixing_output.maxValue(i);
+				float sp_norm = ((float)output - chan_min) / (chan_max - chan_min);
+				sp_norm = math::constrain(sp_norm, 0.f, 1.f);
+				_erpm_sp[i]  = sp_norm * _erpm_max;
 
 				up_dshot_motor_data_set(i, math::min(output, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)),
 							telemetry_index == requested_telemetry_index);
@@ -596,14 +604,12 @@ void DShot::Run()
 	if (_bidirectional_dshot_enabled) {
 		// Add bdshot data to esc status
 		const int need_to_publish = handle_new_bdshot_erpm();
-
 		if (need_to_publish) {
 			publish_esc_status();
 		}
-	}
-	if (_rpm_control_enabled){
-		const int need_to_publish = handle_new_rpm_control_info();
-		if(need_to_publish){
+
+		const int need_to_publish_rpm = handle_new_rpm_control_info();
+		if (need_to_publish_rpm) {
 			publish_rpm_controller_status();
 		}
 	}
@@ -726,11 +732,11 @@ void DShot::update_params()
 
 	updateParams();
 
-	if(_rpm_control_enabled){
-		_erpm_max = _param_max_throttle_rpm.get();
-		_rpm_kp = _param_rpm_kp.get();
-		_rpm_ki = _param_rpm_ki.get();
-	}
+
+	_erpm_max = _param_max_throttle_rpm.get();
+	_rpm_kp = _param_rpm_kp.get();
+	_rpm_ki = _param_rpm_ki.get();
+
 
 	// we use a minimum value of 1, since 0 is for disarmed
 	_mixing_output.setAllMinValues(math::constrain(static_cast<int>((_param_dshot_min.get() *
