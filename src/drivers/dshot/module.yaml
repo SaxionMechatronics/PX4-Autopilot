@@ -83,6 +83,24 @@ parameters:
             type: boolean
             default: 0
             reboot_required: true
+        RMP_CONT_P_GAIN:
+            description:
+                short: The kP factor for the RMP velocity controller
+                long: |
+                    This is only used when DSHOT_RPMCNT_EN is active.
+            type: float
+            min: 0
+            max: 2
+            default: 0.5
+        RMP_CONT_I_GAIN:
+            description:
+                short: The kI factor for the RMP velocity controller
+                long: |
+                    This is only used when DSHOT_RPMCNT_EN is active.
+            type: float
+            min: 0
+            max: 2
+            default: 1.0
         MAX_THROT_RPM:
             description:
                 short: The RPM value at MAX throttle of the motor

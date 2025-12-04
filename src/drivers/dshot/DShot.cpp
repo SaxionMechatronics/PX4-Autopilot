@@ -713,6 +713,8 @@ void DShot::update_params()
 
 	if(_rpm_control_enabled){
 		_erpm_max = _param_max_throttle_rpm.get();
+		_rpm_kp = _param_rpm_kp.get();
+		_rpm_ki = _param_rpm_ki.get();
 	}
 
 	// we use a minimum value of 1, since 0 is for disarmed
