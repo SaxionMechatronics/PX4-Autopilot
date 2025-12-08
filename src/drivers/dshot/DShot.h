@@ -134,6 +134,8 @@ private:
 
 	int handle_new_rpm_control_info(void);
 
+	uint16_t up_rpm_controller(int i, float output, float dt);
+
 	void Run() override;
 
 	void update_params();

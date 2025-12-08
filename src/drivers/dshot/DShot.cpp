@@ -455,28 +455,7 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
 				}
 			} else {
-				const float chan_min = (float)_mixing_output.minValue(i);
-				const float chan_max = (float)_mixing_output.maxValue(i);
-
-				float sp_norm = (float(output) - chan_min) / (chan_max - chan_min);
-				sp_norm = math::constrain(sp_norm, 0.f, 1.f);
-				_erpm_sp[i] = sp_norm * _erpm_max;
-
-				float base_cmd = sp_norm;
-				const float meas = _erpm_meas[i];
-				const float error = (_erpm_sp[i] - meas) / _erpm_max;
-
-				_erpm_int[i] += error * dt;
-				_erpm_int[i] = math::constrain(_erpm_int[i], -_erpm_int_limit, _erpm_int_limit);
-
-				float cmd_norm = base_cmd + _rpm_kp * error + _rpm_ki * _erpm_int[i];
-				cmd_norm = math::constrain(cmd_norm, _cmd_min, _cmd_max);
-
-				uint16_t dshot_cmd = (uint16_t)roundf(cmd_norm * DSHOT_MAX_THROTTLE);
-
-				_last_cmd_norm[i]  = cmd_norm;
-				_last_dshot_cmd[i] = dshot_cmd;
-
+				uint16_t dshot_cmd = up_rpm_controller(i, output, dt);
     				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
 			}
 
@@ -496,6 +475,8 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 				} else {
 					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
 				}
+
+				// ONLY FOR LOGGING
 				_erpm_sp[i]       = 0.f;
 
 			} else {
@@ -534,6 +515,32 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 	up_dshot_trigger();
 
 	return true;
+}
+
+uint16_t DShot::up_rpm_controller(int i, float output, float dt){
+	const float chan_min = (float)_mixing_output.minValue(i);
+	const float chan_max = (float)_mixing_output.maxValue(i);
+
+	float sp_norm = (float(output) - chan_min) / (chan_max - chan_min);
+	sp_norm = math::constrain(sp_norm, 0.f, 1.f);
+	_erpm_sp[i] = sp_norm * _erpm_max;
+
+	float base_cmd = sp_norm;
+	const float meas = _erpm_meas[i];
+	const float error = (_erpm_sp[i] - meas) / _erpm_max;
+
+	_erpm_int[i] += error * dt;
+	_erpm_int[i] = math::constrain(_erpm_int[i], -_erpm_int_limit, _erpm_int_limit);
+
+	float cmd_norm = base_cmd + _rpm_kp * error + _rpm_ki * _erpm_int[i];
+	cmd_norm = math::constrain(cmd_norm, _cmd_min, _cmd_max);
+
+	uint16_t dshot_cmd = (uint16_t)roundf(cmd_norm * DSHOT_MAX_THROTTLE);
+
+	_last_cmd_norm[i]  = cmd_norm;
+	_last_dshot_cmd[i] = dshot_cmd;
+
+	return dshot_cmd;
 }
 
 uint16_t DShot::convert_output_to_3d_scaling(uint16_t output)
