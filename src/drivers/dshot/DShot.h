@@ -190,12 +190,14 @@ private:
 	float _erpm_meas[MAX_ACTUATORS]{};
 	float _erpm_sp[MAX_ACTUATORS]{};
 	float _erpm_int[MAX_ACTUATORS]{};
+	float _erpm_prev_error[MAX_ACTUATORS]{};
 	uint64_t _rpm_last_update{0};
 	uint16_t _last_dshot_cmd[MAX_ACTUATORS]{};
 	float _last_cmd_norm[MAX_ACTUATORS]{};
 	uint16_t _erpm_max{};
 	float _rpm_kp{};
 	float _rpm_ki{};
+	float _rpm_kd{};
 
 	float _erpm_int_limit{0.5f};
 	float _cmd_min{0.0f};
@@ -210,7 +212,8 @@ private:
 		(ParamBool<px4::params::DSHOT_BIDIR_EN>) _param_bidirectional_enable,
 		(ParamBool<px4::params::DSHOT_RPMCNT_EN>) _param_rpm_ctrl_enabled,
 		(ParamInt<px4::params::MAX_THROT_RPM>) _param_max_throttle_rpm,
-		(ParamFloat<px4::params::RMP_CONT_P_GAIN>) _param_rpm_kp,
-		(ParamFloat<px4::params::RMP_CONT_I_GAIN>) _param_rpm_ki
+		(ParamFloat<px4::params::RPM_CONT_P_GAIN>) _param_rpm_kp,
+		(ParamFloat<px4::params::RPM_CONT_I_GAIN>) _param_rpm_ki,
+		(ParamFloat<px4::params::RPM_CONT_D_GAIN>) _param_rpm_kd
 	)
 };

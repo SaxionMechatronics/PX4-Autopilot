@@ -445,8 +445,6 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 			uint16_t output = outputs[i];
 
 			if(output == DSHOT_DISARM_VALUE){
-				_erpm_sp[i] = 0.f;
-				_erpm_int[i] = 0.f;
 
 				if (_current_command.valid() && (_current_command.motor_mask & (1 << i))) {
 					up_dshot_motor_command(i, _current_command.command, true);
@@ -532,7 +530,10 @@ uint16_t DShot::up_rpm_controller(int i, float output, float dt){
 	_erpm_int[i] += error * dt;
 	_erpm_int[i] = math::constrain(_erpm_int[i], -_erpm_int_limit, _erpm_int_limit);
 
-	float cmd_norm = base_cmd + _rpm_kp * error + _rpm_ki * _erpm_int[i];
+	float d_error = (error - _erpm_prev_error[i]) / dt;
+	_erpm_prev_error[i] = error;
+
+	float cmd_norm = base_cmd + _rpm_kp * error + _rpm_ki * _erpm_int[i] + _rpm_kd * d_error;
 	cmd_norm = math::constrain(cmd_norm, _cmd_min, _cmd_max);
 
 	uint16_t dshot_cmd = (uint16_t)roundf(cmd_norm * DSHOT_MAX_THROTTLE);
@@ -743,6 +744,7 @@ void DShot::update_params()
 	_erpm_max = _param_max_throttle_rpm.get();
 	_rpm_kp = _param_rpm_kp.get();
 	_rpm_ki = _param_rpm_ki.get();
+	_rpm_kd = _param_rpm_kd.get();
 
 
 	// we use a minimum value of 1, since 0 is for disarmed
