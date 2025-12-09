@@ -445,6 +445,11 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 			uint16_t output = outputs[i];
 
 			if(output == DSHOT_DISARM_VALUE){
+				_erpm_sp[i]         = 0.f;
+				_erpm_int[i]        = 0.f;
+				_erpm_prev_error[i] = 0.f;
+				_last_cmd_norm[i]   = 0.f;
+				_last_dshot_cmd[i]  = DSHOT_DISARM_VALUE;
 
 				if (_current_command.valid() && (_current_command.motor_mask & (1 << i))) {
 					up_dshot_motor_command(i, _current_command.command, true);
