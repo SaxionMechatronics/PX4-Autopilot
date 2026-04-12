@@ -210,11 +210,11 @@ private:
 		(ParamInt<px4::params::DSHOT_3D_DEAD_L>) _param_dshot_3d_dead_l,
 		(ParamInt<px4::params::MOT_POLE_COUNT>) _param_mot_pole_count,
 		(ParamBool<px4::params::DSHOT_BIDIR_EN>) _param_bidirectional_enable,
-		(ParamBool<px4::params::DSHOT_RPMCNT_EN>) _param_rpm_ctrl_enabled,
+		(ParamBool<px4::params::RPM_CTRL_EN>) _param_rpm_ctrl_enabled,
 		(ParamInt<px4::params::MAX_THROT_RPM>) _param_max_throttle_rpm,
-		(ParamFloat<px4::params::RPM_CONT_P_GAIN>) _param_rpm_kp,
-		(ParamFloat<px4::params::RPM_CONT_I_GAIN>) _param_rpm_ki,
-		(ParamFloat<px4::params::RPM_CONT_D_GAIN>) _param_rpm_kd,
-		(ParamFloat<px4::params::RPM_CONT_I_LIM>) _param_rpm_int_limit
+		(ParamFloat<px4::params::RPM_CTRL_P_GAIN>) _param_rpm_kp,
+		(ParamFloat<px4::params::RPM_CTRL_I_GAIN>) _param_rpm_ki,
+		(ParamFloat<px4::params::RPM_CTRL_D_GAIN>) _param_rpm_kd,
+		(ParamFloat<px4::params::RPM_CTRL_I_LIM>) _param_rpm_int_limit
 	)
 };

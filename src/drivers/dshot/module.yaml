@@ -74,7 +74,7 @@ parameters:
                     Typical motors for 5 inch props have 14 poles.
             type: int32
             default: 14
-        DSHOT_RPMCNT_EN:
+        RPM_CTRL_EN:
             description:
                 short: Enable a closed loop RPM controller using bidirectional DShot
                 long: |
@@ -83,39 +83,39 @@ parameters:
             type: boolean
             default: 0
             reboot_required: true
-        RPM_CONT_P_GAIN:
+        RPM_CTRL_P_GAIN:
             description:
-                short: The kP factor for the RMP velocity controller
+                short: The P gain for the RPM controller
                 long: |
-                    This is only used when DSHOT_RPMCNT_EN is active.
+                    This is only used when RPM_CTRL_EN is active.
             type: float
             min: 0
             max: 2
             default: 0.5
-        RPM_CONT_I_GAIN:
+        RPM_CTRL_I_GAIN:
             description:
-                short: The kI factor for the RMP velocity controller
+                short: The I gain for the RPM controller
                 long: |
-                    This is only used when DSHOT_RPMCNT_EN is active.
+                    This is only used when RPM_CTRL_EN is active.
             type: float
             min: 0
             max: 2
             default: 1.0
-        RPM_CONT_D_GAIN:
+        RPM_CTRL_D_GAIN:
             description:
-                short: The kD factor for the RMP velocity controller
+                short: The D gain for the RPM controller
                 long: |
-                    This is only used when DSHOT_RPMCNT_EN is active.
+                    This is only used when RPM_CTRL_EN is active.
             type: float
             min: 0
             max: 2
             default: 0.0
-        RPM_CONT_I_LIM:
+        RPM_CTRL_I_LIM:
             description:
                 short: Integrator limit for the RPM controller
                 long: |
                     Limits the normalized integrator term to prevent windup.
-                    This is only used when DSHOT_RPMCNT_EN is active.
+                    This is only used when RPM_CTRL_EN is active.
             type: float
             min: 0.01
             max: 1.0
