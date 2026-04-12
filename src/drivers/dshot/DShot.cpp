@@ -484,8 +484,9 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
 				}
 
-				// ONLY FOR LOGGING
-				_erpm_sp[i]       = 0.f;
+				if (_bidirectional_dshot_enabled) {
+					_erpm_sp[i] = 0.f;
+				}
 
 			} else {
 
@@ -493,12 +494,13 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 					output = convert_output_to_3d_scaling(output);
 				}
 
-				// ONLY FOR LOGGING
-				const float chan_min = (float)_mixing_output.minValue(i);
-				const float chan_max = (float)_mixing_output.maxValue(i);
-				float sp_norm = ((float)output - chan_min) / (chan_max - chan_min);
-				sp_norm = math::constrain(sp_norm, 0.f, 1.f);
-				_erpm_sp[i]  = sp_norm * _erpm_max;
+				if (_bidirectional_dshot_enabled) {
+					const float chan_min = (float)_mixing_output.minValue(i);
+					const float chan_max = (float)_mixing_output.maxValue(i);
+					float sp_norm = ((float)output - chan_min) / (chan_max - chan_min);
+					sp_norm = math::constrain(sp_norm, 0.f, 1.f);
+					_erpm_sp[i] = sp_norm * _erpm_max;
+				}
 
 				up_dshot_motor_data_set(i, math::min(output, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)),
 							telemetry_index == requested_telemetry_index);
@@ -758,6 +760,7 @@ void DShot::update_params()
 	_rpm_kp = _param_rpm_kp.get();
 	_rpm_ki = _param_rpm_ki.get();
 	_rpm_kd = _param_rpm_kd.get();
+	_erpm_int_limit = _param_rpm_int_limit.get();
 
 
 	// we use a minimum value of 1, since 0 is for disarmed

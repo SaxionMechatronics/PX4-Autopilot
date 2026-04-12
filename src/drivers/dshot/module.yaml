@@ -110,6 +110,18 @@ parameters:
             min: 0
             max: 2
             default: 0.0
+        RPM_CONT_I_LIM:
+            description:
+                short: Integrator limit for the RPM controller
+                long: |
+                    Limits the normalized integrator term to prevent windup.
+                    This is only used when DSHOT_RPMCNT_EN is active.
+            type: float
+            min: 0.01
+            max: 1.0
+            decimal: 2
+            increment: 0.05
+            default: 0.5
         MAX_THROT_RPM:
             description:
                 short: The RPM value at MAX throttle of the motor

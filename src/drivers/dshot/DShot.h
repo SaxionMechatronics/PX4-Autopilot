@@ -199,7 +199,7 @@ private:
 	float _rpm_ki{};
 	float _rpm_kd{};
 
-	float _erpm_int_limit{0.5f};
+	float _erpm_int_limit{};
 	float _cmd_min{0.0f};
 	float _cmd_max{1.0f};
 
@@ -214,6 +214,7 @@ private:
 		(ParamInt<px4::params::MAX_THROT_RPM>) _param_max_throttle_rpm,
 		(ParamFloat<px4::params::RPM_CONT_P_GAIN>) _param_rpm_kp,
 		(ParamFloat<px4::params::RPM_CONT_I_GAIN>) _param_rpm_ki,
-		(ParamFloat<px4::params::RPM_CONT_D_GAIN>) _param_rpm_kd
+		(ParamFloat<px4::params::RPM_CONT_D_GAIN>) _param_rpm_kd,
+		(ParamFloat<px4::params::RPM_CONT_I_LIM>) _param_rpm_int_limit
 	)
 };
