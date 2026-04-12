@@ -187,13 +187,13 @@ private:
 	// -------------------------------------//
 
 	static constexpr int MAX_MOTORS{esc_status_s::CONNECTED_ESC_MAX};
-	float _erpm_meas[MAX_ACTUATORS]{};
-	float _erpm_sp[MAX_ACTUATORS]{};
-	float _erpm_int[MAX_ACTUATORS]{};
-	float _erpm_prev_error[MAX_ACTUATORS]{};
+	float _erpm_meas[MAX_ACTUATORS] {};
+	float _erpm_sp[MAX_ACTUATORS] {};
+	float _erpm_int[MAX_ACTUATORS] {};
+	float _erpm_prev_error[MAX_ACTUATORS] {};
 	uint64_t _rpm_last_update{0};
-	uint16_t _last_dshot_cmd[MAX_ACTUATORS]{};
-	float _last_cmd_norm[MAX_ACTUATORS]{};
+	uint16_t _last_dshot_cmd[MAX_ACTUATORS] {};
+	float _last_cmd_norm[MAX_ACTUATORS] {};
 	uint16_t _erpm_max{};
 	float _rpm_kp{};
 	float _rpm_ki{};

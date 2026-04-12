@@ -51,7 +51,7 @@ DShot::DShot() :
 	// Avoid using the PWM failsafe params
 	_mixing_output.setAllFailsafeValues(UINT16_MAX);
 
-	if(_rpm_control_enabled){
+	if (_rpm_control_enabled) {
 		PX4_INFO(">>> CUSTOM DSHOT BUILD, RPM CONTROL ENABLED <<<");
 	}
 }
@@ -261,9 +261,10 @@ int DShot::handle_new_telemetry_data(const int telemetry_index, const DShotTelem
 	return ret;
 }
 
-void DShot::publish_rpm_controller_status(void){
+void DShot::publish_rpm_controller_status(void)
+{
 	if (!rpm_controller_info_pub.advertised()) {
-	rpm_controller_info_pub.advertise();
+		rpm_controller_info_pub.advertise();
 
 	} else {
 		rpm_controller_info_pub.update();
@@ -272,28 +273,28 @@ void DShot::publish_rpm_controller_status(void){
 
 int DShot::handle_new_rpm_control_info()
 {
-    if (_num_motors == 0) {
-        return 0;
-    }
+	if (_num_motors == 0) {
+		return 0;
+	}
 
-    rpm_controller_info_s &msg = rpm_controller_info_pub.get();
+	rpm_controller_info_s &msg = rpm_controller_info_pub.get();
 
-    msg.timestamp = hrt_absolute_time();
-    msg.num_motors = _num_motors;
+	msg.timestamp = hrt_absolute_time();
+	msg.num_motors = _num_motors;
 
-    for (unsigned i = 0; i < _num_outputs; i++) {
-        const float sp_erpm = _erpm_sp[i];
-        const float meas_erpm = _erpm_meas[i];
+	for (unsigned i = 0; i < _num_outputs; i++) {
+		const float sp_erpm = _erpm_sp[i];
+		const float meas_erpm = _erpm_meas[i];
 
-        msg.rpm_setpoint[i]   = sp_erpm;
-        msg.rpm_measured[i]   = meas_erpm;
-        msg.rpm_error[i]      = sp_erpm - meas_erpm;
+		msg.rpm_setpoint[i]   = sp_erpm;
+		msg.rpm_measured[i]   = meas_erpm;
+		msg.rpm_error[i]      = sp_erpm - meas_erpm;
 
-        msg.cmd_norm[i]        = _last_cmd_norm[i];
-        msg.dshot_command[i]   = _last_dshot_cmd[i];
-    }
+		msg.cmd_norm[i]        = _last_cmd_norm[i];
+		msg.dshot_command[i]   = _last_dshot_cmd[i];
+	}
 
-    return 1;
+	return 1;
 }
 
 
@@ -366,7 +367,7 @@ int DShot::handle_new_bdshot_erpm(void)
 				esc_status.esc[telemetry_index].esc_rpm = (erpm * 100) / (_param_mot_pole_count.get() / 2);
 				esc_status.esc[telemetry_index].actuator_function = _actuator_functions[telemetry_index];
 
-				if(_rpm_control_enabled && telemetry_index < MAX_ACTUATORS){
+				if (_rpm_control_enabled && telemetry_index < MAX_ACTUATORS) {
 					_erpm_meas[telemetry_index] = static_cast<float>((erpm * 100) / (_param_mot_pole_count.get() / 2));
 				}
 			}
@@ -432,19 +433,21 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 
 	int telemetry_index = 0;
 
-	if(_rpm_control_enabled){
+	if (_rpm_control_enabled) {
 
 		hrt_abstime now = hrt_absolute_time();
 		float dt = 0.002f;
-		if(_rpm_last_update > 0){
+
+		if (_rpm_last_update > 0) {
 			dt = (now - _rpm_last_update) * 1e-6f;
 		}
+
 		_rpm_last_update = now;
 
-		for(int i = 0; i < (int)num_outputs; i++){
+		for (int i = 0; i < (int)num_outputs; i++) {
 			uint16_t output = outputs[i];
 
-			if(output == DSHOT_DISARM_VALUE){
+			if (output == DSHOT_DISARM_VALUE) {
 				_erpm_sp[i]         = 0.f;
 				_erpm_int[i]        = 0.f;
 				_erpm_prev_error[i] = 0.f;
@@ -457,13 +460,15 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 				} else {
 					up_dshot_motor_command(i, DShot_cmd_motor_stop, telemetry_index == requested_telemetry_index);
 				}
+
 			} else {
 				uint16_t dshot_cmd = up_rpm_controller(i, output, dt);
-    				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
+				up_dshot_motor_data_set(i, math::min(dshot_cmd, static_cast<uint16_t>(DSHOT_MAX_THROTTLE)), telemetry_index == requested_telemetry_index);
 			}
 
 			telemetry_index += _mixing_output.isFunctionSet(i);
 		}
+
 	} else {
 
 		for (int i = 0; i < (int)num_outputs; i++) {
@@ -520,7 +525,8 @@ bool DShot::updateOutputs(uint16_t outputs[MAX_ACTUATORS],
 	return true;
 }
 
-uint16_t DShot::up_rpm_controller(int i, float output, float dt){
+uint16_t DShot::up_rpm_controller(int i, float output, float dt)
+{
 	const float chan_min = (float)_mixing_output.minValue(i);
 	const float chan_max = (float)_mixing_output.maxValue(i);
 
@@ -617,11 +623,13 @@ void DShot::Run()
 	if (_bidirectional_dshot_enabled) {
 		// Add bdshot data to esc status
 		const int need_to_publish = handle_new_bdshot_erpm();
+
 		if (need_to_publish) {
 			publish_esc_status();
 		}
 
 		const int need_to_publish_rpm = handle_new_rpm_control_info();
+
 		if (need_to_publish_rpm) {
 			publish_rpm_controller_status();
 		}
