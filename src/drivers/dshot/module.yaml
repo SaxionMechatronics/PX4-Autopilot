@@ -74,7 +74,7 @@ parameters:
                     Typical motors for 5 inch props have 14 poles.
             type: int32
             default: 14
-        RPM_CTRL_EN:
+        RPMC_EN:
             description:
                 short: Enable a closed loop RPM controller using bidirectional DShot
                 long: |
@@ -83,46 +83,46 @@ parameters:
             type: boolean
             default: 0
             reboot_required: true
-        RPM_CTRL_P_GAIN:
+        RPMC_P_GAIN:
             description:
                 short: The P gain for the RPM controller
                 long: |
-                    This is only used when RPM_CTRL_EN is active.
+                    This is only used when RPMC_EN is active.
             type: float
             min: 0
             max: 2
             default: 0.5
-        RPM_CTRL_I_GAIN:
+        RPMC_I_GAIN:
             description:
                 short: The I gain for the RPM controller
                 long: |
-                    This is only used when RPM_CTRL_EN is active.
+                    This is only used when RPMC_EN is active.
             type: float
             min: 0
             max: 2
             default: 1.0
-        RPM_CTRL_D_GAIN:
+        RPMC_D_GAIN:
             description:
                 short: The D gain for the RPM controller
                 long: |
-                    This is only used when RPM_CTRL_EN is active.
+                    This is only used when RPMC_EN is active.
             type: float
             min: 0
             max: 2
             default: 0.0
-        RPM_CTRL_I_LIM:
+        RPMC_I_LIM:
             description:
                 short: Integrator limit for the RPM controller
                 long: |
                     Limits the normalized integrator term to prevent windup.
-                    This is only used when RPM_CTRL_EN is active.
+                    This is only used when RPMC_EN is active.
             type: float
             min: 0.01
             max: 1.0
             decimal: 2
             increment: 0.05
             default: 0.5
-        MAX_THROT_RPM:
+        RPMC_MAX_THROT:
             description:
                 short: The RPM value at MAX throttle of the motor
                 long: |

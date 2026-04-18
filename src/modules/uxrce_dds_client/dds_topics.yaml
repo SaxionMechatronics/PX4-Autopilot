@@ -110,9 +110,9 @@ publications:
     type: px4_msgs::msg::GimbalDeviceAttitudeStatus
     rate_limit: 20.
 
-  - topic: /fmu/out/rpm_controller_info
-    type: px4_msgs::msg::RpmControllerInfo
-    rate_limit: 5.
+  # - topic: /fmu/out/rpm_controller_info
+  #   type: px4_msgs::msg::RpmControllerInfo
+  #   rate_limit: 5.
 
   - topic: /fmu/out/esc_status
     type: px4_msgs::msg::EscStatus
