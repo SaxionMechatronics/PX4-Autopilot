@@ -110,3 +110,4 @@ param set-default SIM_GZ_EC_MAX8 730
 param set-default CA_METHOD 0
 param set-default FD_FAIL_P 0
 param set-default FD_FAIL_R 0
+param set-default COM_ARM_CHK_ESCS 0
