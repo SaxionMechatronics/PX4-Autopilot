@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# @name Sarax+ Coaxial Octocopter SITL
+#
+# @type Octo Coaxial
+#
+# @maintainer Ayham Alharbat <a.alharbat@saxion.nl>
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
+PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=sarax_plus}
+
+param set-default MAV_TYPE 14
+
+# Based on Typhoon H480 scaled for ~9.5 kg.
+param set-default MC_ROLLRATE_P 0.08
+param set-default MC_ROLLRATE_I 0.04
+param set-default MC_ROLLRATE_D 0.001
+param set-default MC_ROLL_P 9
+param set-default MC_PITCHRATE_P 0.08
+param set-default MC_PITCHRATE_I 0.04
+param set-default MC_PITCHRATE_D 0.001
+param set-default MC_PITCH_P 9
+param set-default MPC_XY_VEL_P_ACC 3
+param set-default MPC_XY_VEL_I_ACC 4
+param set-default MPC_THR_HOVER 0.6
+
+param set-default CA_AIRFRAME 0
+param set-default CA_ROTOR_COUNT 8
+
+# Coaxial octo geometry (NED, x-forward, y-right, z-down).
+# SDF x-forward, y-left, z-up: top rotors at +0.045 → CA PZ = -0.045; bottom at -0.045 → CA PZ = +0.045.
+# KM sign: CCW → +0.05, CW → -0.05.
+
+# Top layer
+param set-default CA_ROTOR0_PX 0.3181
+param set-default CA_ROTOR0_PY 0.3181
+param set-default CA_ROTOR0_PZ -0.045
+param set-default CA_ROTOR0_KM 0.05
+
+param set-default CA_ROTOR1_PX 0.3181
+param set-default CA_ROTOR1_PY -0.3181
+param set-default CA_ROTOR1_PZ -0.045
+param set-default CA_ROTOR1_KM -0.05
+
+param set-default CA_ROTOR2_PX -0.3181
+param set-default CA_ROTOR2_PY -0.3181
+param set-default CA_ROTOR2_PZ -0.045
+param set-default CA_ROTOR2_KM 0.05
+
+param set-default CA_ROTOR3_PX -0.3181
+param set-default CA_ROTOR3_PY 0.3181
+param set-default CA_ROTOR3_PZ -0.045
+param set-default CA_ROTOR3_KM -0.05
+
+# Bottom layer
+param set-default CA_ROTOR4_PX 0.3181
+param set-default CA_ROTOR4_PY -0.3181
+param set-default CA_ROTOR4_PZ 0.045
+param set-default CA_ROTOR4_KM 0.05
+
+param set-default CA_ROTOR5_PX 0.3181
+param set-default CA_ROTOR5_PY 0.3181
+param set-default CA_ROTOR5_PZ 0.045
+param set-default CA_ROTOR5_KM -0.05
+
+param set-default CA_ROTOR6_PX -0.3181
+param set-default CA_ROTOR6_PY 0.3181
+param set-default CA_ROTOR6_PZ 0.045
+param set-default CA_ROTOR6_KM 0.05
+
+param set-default CA_ROTOR7_PX -0.3181
+param set-default CA_ROTOR7_PY -0.3181
+param set-default CA_ROTOR7_PZ 0.045
+param set-default CA_ROTOR7_KM -0.05
+
+param set-default SIM_GZ_EN 1
+
+param set-default SIM_GZ_EC_FUNC1 101
+param set-default SIM_GZ_EC_FUNC2 102
+param set-default SIM_GZ_EC_FUNC3 103
+param set-default SIM_GZ_EC_FUNC4 104
+param set-default SIM_GZ_EC_FUNC5 105
+param set-default SIM_GZ_EC_FUNC6 106
+param set-default SIM_GZ_EC_FUNC7 107
+param set-default SIM_GZ_EC_FUNC8 108
+
+param set-default SIM_GZ_EC_MIN1 0
+param set-default SIM_GZ_EC_MIN2 0
+param set-default SIM_GZ_EC_MIN3 0
+param set-default SIM_GZ_EC_MIN4 0
+param set-default SIM_GZ_EC_MIN5 0
+param set-default SIM_GZ_EC_MIN6 0
+param set-default SIM_GZ_EC_MIN7 0
+param set-default SIM_GZ_EC_MIN8 0
+
+param set-default SIM_GZ_EC_MAX1 730
+param set-default SIM_GZ_EC_MAX2 730
+param set-default SIM_GZ_EC_MAX3 730
+param set-default SIM_GZ_EC_MAX4 730
+param set-default SIM_GZ_EC_MAX5 730
+param set-default SIM_GZ_EC_MAX6 730
+param set-default SIM_GZ_EC_MAX7 730
+param set-default SIM_GZ_EC_MAX8 730
+
+# Loosen failure detection during bring-up.
+param set-default CA_METHOD 0
+param set-default FD_FAIL_P 0
+param set-default FD_FAIL_R 0
