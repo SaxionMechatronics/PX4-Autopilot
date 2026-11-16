@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# @name Peach
+#
+# @type Hexarotor x
+# @class Copter
+#
+# @maintainer Kousheek Chakraborty <k.chakraborty@saxion.nl>
+#
+# @board px4_fmu-v2 exclude
+# @board bitcraze_crazyflie exclude
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+# MAV_TYPE_HEXAROTOR 13
+param set-default MAV_TYPE 13
+
+param set-default CA_ROTOR_COUNT 6
+
+param set-default BAT1_SOURCE 0
+param set-default BAT1_N_CELLS 4
+param set-default BAT1_V_DIV 18.10000038
+
+param set-default CA_ROTOR0_PX 0.0
+param set-default CA_ROTOR0_PY 0.338
+param set-default CA_ROTOR0_PZ 0.0
+param set-default CA_ROTOR0_KM -0.05
+param set-default CA_ROTOR0_AX 0.5
+param set-default CA_ROTOR0_AY 0.0
+param set-default CA_ROTOR0_AZ -0.8660254
+
+param set-default CA_ROTOR1_PX 0.0
+param set-default CA_ROTOR1_PY -0.338
+param set-default CA_ROTOR1_PZ 0.0
+param set-default CA_ROTOR1_KM 0.05
+param set-default CA_ROTOR1_AX 0.5
+param set-default CA_ROTOR1_AY 0
+param set-default CA_ROTOR1_AZ -0.8660254
+
+param set-default CA_ROTOR2_PX 0.3
+param set-default CA_ROTOR2_PY -0.18
+param set-default CA_ROTOR2_PZ 0.0
+param set-default CA_ROTOR2_KM -0.05
+param set-default CA_ROTOR2_AX -0.25
+param set-default CA_ROTOR2_AY -0.4330127
+param set-default CA_ROTOR2_AZ -0.8660254
+
+param set-default CA_ROTOR3_PX -0.3
+param set-default CA_ROTOR3_PY 0.18
+param set-default CA_ROTOR3_PZ 0.0
+param set-default CA_ROTOR3_KM 0.05
+param set-default CA_ROTOR3_AX -0.25
+param set-default CA_ROTOR3_AY -0.4330127
+param set-default CA_ROTOR3_AZ -0.8660254
+
+param set-default CA_ROTOR4_PX 0.3
+param set-default CA_ROTOR4_PY 0.18
+param set-default CA_ROTOR4_PZ 0.0
+param set-default CA_ROTOR4_KM 0.05
+param set-default CA_ROTOR4_AX -0.25
+param set-default CA_ROTOR4_AY 0.4330127
+param set-default CA_ROTOR4_AZ -0.8660254
+
+param set-default CA_ROTOR5_PX -0.3
+param set-default CA_ROTOR5_PY -0.18
+param set-default CA_ROTOR5_PZ 0.0
+param set-default CA_ROTOR5_KM -0.05
+param set-default CA_ROTOR5_AX -0.25
+param set-default CA_ROTOR5_AY 0.4330127
+param set-default CA_ROTOR5_AZ -0.8660254
+
+param set-default PWM_MAIN_FUNC1 101
+param set-default PWM_MAIN_FUNC2 102
+param set-default PWM_MAIN_FUNC3 103
+param set-default PWM_MAIN_FUNC4 104
+param set-default PWM_MAIN_FUNC5 105
+param set-default PWM_MAIN_FUNC6 106
+
+param set-default MPC_XY_VEL_ALL 5.0
+
+# Overactuated control: attitude from RC AUX1/AUX2, decoupled from force
+param set-default CA_OVERACT_EN 1
+param set-default CA_OVERACT_MAX 15
+param set-default MC_YAW_WEIGHT 1
+param set-default MPC_ACC_DECOUPLE 0
