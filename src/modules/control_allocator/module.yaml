@@ -48,6 +48,31 @@ parameters:
                 2: Automatic
             default: 2
 
+        CA_OVERACT_EN:
+            description:
+                short: Enable overactuated (decoupled force/torque) control
+                long: |
+                  For multirotors with tilted rotors that can produce lateral body force.
+                  If enabled, the position controller commands the full 3D body thrust and
+                  the attitude is set independently (roll/pitch from RC AUX1/AUX2, see CA_OVERACT_MAX).
+                  Thrust X/Y are normalized with the same scale as thrust Z.
+            type: boolean
+            default: 0
+            reboot_required: true
+
+        CA_OVERACT_MAX:
+            description:
+                short: Overactuated mode maximum roll/pitch setpoint
+                long: |
+                  Roll/pitch attitude setpoint at full RC AUX1/AUX2 deflection when CA_OVERACT_EN is enabled.
+            type: float
+            unit: deg
+            min: 0
+            max: 180
+            decimal: 1
+            increment: 1
+            default: 180
+
         # Motor parameters
         CA_R_REV:
             description:

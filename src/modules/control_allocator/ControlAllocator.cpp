@@ -193,6 +193,7 @@ ControlAllocator::update_allocation_method(bool force)
 
 			} else {
 				_control_allocation[i]->setNormalizeRPY(normalize_rpy[i]);
+				_control_allocation[i]->setUniformThrustScale(_param_ca_overact_en.get());
 				_control_allocation[i]->setActuatorSetpoint(actuator_sp[i]);
 			}
 		}
