@@ -228,6 +228,8 @@ public:
 
 	void setNormalizeRPY(bool normalize_rpy) { _normalize_rpy = normalize_rpy; }
 
+	void setUniformThrustScale(bool uniform_thrust_scale) { _uniform_thrust_scale = uniform_thrust_scale; }
+
 protected:
 	friend class ControlAllocator; // for _actuator_sp
 
@@ -243,5 +245,6 @@ protected:
 	matrix::Vector<float, NUM_AXES> _control_trim; 		///< Control at trim actuator values
 	int _num_actuators{0};
 	bool _normalize_rpy{false};				///< if true, normalize roll, pitch and yaw columns
+	bool _uniform_thrust_scale{false};			///< if true, thrust X/Y use the Z scale (overactuated control)
 	bool _had_actuator_failure{false};
 };

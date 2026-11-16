@@ -138,7 +138,11 @@ ControlAllocationPseudoInverse::updateControlAllocationMatrixScale()
 			}
 		}
 
-		if (num_non_zero_thrust > 0) {
+		if (_uniform_thrust_scale && axis_idx != 2) {
+			// same normalized-to-physical thrust ratio on all axes (decoupled force control)
+			_control_allocation_scale(3 + axis_idx) = _control_allocation_scale(THRUST_Z);
+
+		} else if (num_non_zero_thrust > 0) {
 			_control_allocation_scale(3 + axis_idx) = norm_sum / num_non_zero_thrust;
 
 		} else {
