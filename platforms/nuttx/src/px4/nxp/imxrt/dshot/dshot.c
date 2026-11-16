@@ -111,6 +111,10 @@ static unsigned dshot_speed;
 static uint32_t dshot_mask;
 static uint32_t bdshot_recv_mask;
 static uint32_t bdshot_parsed_recv_mask;
+// Channels that replied in the previous cycle. up_dshot_trigger() clears
+// bdshot_recv_mask before DShot::Run() asks how many erpms are ready, so the
+// readiness check must use this snapshot (local patch, see upstream #28412).
+static uint32_t bdshot_last_recv_mask;
 
 static inline uint32_t flexio_getreg32(uint32_t offset)
 {
@@ -504,7 +508,7 @@ int up_bdshot_num_erpm_ready(void)
 	for (unsigned i = 0; i < DSHOT_TIMERS; ++i) {
 		// We only check that data has been received, rather than if it's valid.
 		// This ensures data is published even if one channel has bit errors.
-		if (bdshot_recv_mask & (1 << i)) {
+		if (bdshot_last_recv_mask & (1 << i)) {
 			++num_ready;
 		}
 	}
@@ -551,6 +555,8 @@ void up_bdshot_status(void)
 
 void up_dshot_trigger(void)
 {
+	bdshot_last_recv_mask = bdshot_recv_mask;
+
 	// Calc data now since we're not event driven
 	if (bdshot_recv_mask != 0x0) {
 		up_bdshot_erpm();
