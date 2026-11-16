@@ -608,6 +608,39 @@ void MulticopterPositionControl::Run()
 			// Publish attitude setpoint output
 			vehicle_attitude_setpoint_s attitude_setpoint{};
 			_control.getAttitudeSetpoint(attitude_setpoint);
+
+			if (_param_ca_overact_en.get()) {
+				// Overactuated: attitude independent of the force direction.
+				// Yaw as commanded by position control, roll/pitch from RC AUX1/AUX2 (level if landed or no RC).
+				const float yaw = Eulerf(Quatf(attitude_setpoint.q_d)).psi();
+				float roll = 0.f;
+				float pitch = 0.f;
+				manual_control_setpoint_s rc;
+
+				if (!_vehicle_land_detected.landed && _manual_control_setpoint_sub.copy(&rc)
+				    && rc.valid && (now < rc.timestamp + 500_ms)
+				    && PX4_ISFINITE(rc.aux1) && PX4_ISFINITE(rc.aux2)) {
+					const float max_angle = math::radians(_param_ca_overact_max.get());
+					roll = math::constrain(rc.aux1, -1.f, 1.f) * max_angle;
+					pitch = math::constrain(rc.aux2, -1.f, 1.f) * max_angle;
+				}
+
+				const Quatf q_d{Eulerf(roll, pitch, yaw)};
+
+				// world-frame thrust (gravity-compensated, limited) expressed in the current body frame,
+				// so the applied force is correct regardless of attitude tracking error (setpoint as fallback)
+				Quatf q_body{q_d};
+				vehicle_attitude_s vehicle_attitude;
+
+				if (_vehicle_attitude_sub.copy(&vehicle_attitude) && (now < vehicle_attitude.timestamp + 100_ms)
+				    && Quatf(vehicle_attitude.q).isAllFinite()) {
+					q_body = Quatf(vehicle_attitude.q);
+				}
+
+				const Vector3f thrust_body = q_body.rotateVectorInverse(Vector3f(local_pos_sp.thrust));
+				q_d.copyTo(attitude_setpoint.q_d);
+				thrust_body.copyTo(attitude_setpoint.thrust_body);
+			}
 			attitude_setpoint.timestamp = hrt_absolute_time();
 			_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
 
